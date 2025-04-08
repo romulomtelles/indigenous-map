@@ -1,0 +1,38 @@
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Map Container -->
+<div id="canadaMap" style="height: 500px; width: 100%; margin-top: 20px;"></div>
+
+<script>
+// Initialize map centered over Canada
+var map = L.map('canadaMap').setView([56.1304, -106.3468], 4);
+
+// Add base map tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Load updated JSON with generated profile links
+fetch('https://raw.githubusercontent.com/romulomtelles/indigenous-map/refs/heads/main/first_nations_all_fields.json')
+  .then(response => response.json())
+  .then(data => {
+    data.forEach(location => {
+      if (location.lat && location.lng) {
+        const popupContent = `
+          <strong>${location.band_name}</strong><br>
+          <b>Band #:</b> ${location.band_number}<br>
+          <b>Province:</b> ${location.province_code}<br>
+          <a href="${location.link}" target="_blank">View Profile</a>
+        `;
+        L.marker([location.lat, location.lng])
+          .addTo(map)
+          .bindPopup(popupContent);
+      }
+    });
+  })
+  .catch(error => {
+    console.error("Failed to load location data:", error);
+  });
+</script>
